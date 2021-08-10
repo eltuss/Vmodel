@@ -6,12 +6,16 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var txtNome: EditText
     lateinit var btnDados: Button
     lateinit var btnMostrar: Button
+
+    lateinit var mViewModel: MainViewModel
 
     var contador: Int = 0
 
@@ -22,12 +26,33 @@ class MainActivity : AppCompatActivity() {
         logar(valor = "onCreate")
 
         initDados()
-        initContador()
         initClick()
 
-        validaContador()
+    }
+
+    private fun initDados() {
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
+        txtNome = findViewById(R.id.txtContador)
+        btnDados = findViewById(R.id.btnDados)
+        btnMostrar = findViewById(R.id.btnMostrar)
+
+        mViewModel.mContador.observe(this, Observer { valor ->
+            txtNome.setText(valor)
+        })
+    }
+
+
+    private fun initClick() {
+        btnDados.setOnClickListener {
+            mViewModel.Contador()
+        }
+        btnMostrar.setOnClickListener{
+            Toast.makeText(applicationContext, "Valor do Contador: ${mViewModel.mContador.value}", Toast.LENGTH_SHORT).show()
+        }
 
     }
+
 
     override fun onStart() {
         logar(valor = "onStart")
@@ -58,31 +83,5 @@ class MainActivity : AppCompatActivity() {
         Log.d(tag, valor)
     }
 
-    private fun validaContador() {
-        if (contador > 5){
-            contador = 0
-        }
-    }
 
-    private fun initClick() {
-        btnDados.setOnClickListener {
-            contador++
-            validaContador()
-            initContador()
-        }
-        btnMostrar.setOnClickListener{
-            Toast.makeText(this, "Valor do Contador: ${contador.toString()}", Toast.LENGTH_SHORT).show()
-        }
-
-    }
-
-    private fun initContador() {
-        txtNome.setText(contador.toString())
-    }
-
-    private fun initDados() {
-        txtNome = findViewById(R.id.txtContador)
-        btnDados = findViewById(R.id.btnDados)
-        btnMostrar = findViewById(R.id.btnMostrar)
-    }
 }
